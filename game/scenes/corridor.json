@@ -1,0 +1,41 @@
+{
+  "scene_id": "corridor",
+  "scene_name": "走廊",
+  "scene_type": "走廊",
+  "width": 25,
+  "height": 19,
+  "tile_size": 32,
+  "spawn_point": { "x": 100, "y": 300 },
+  "walls": [
+    { "x": 0, "y": 0, "width": 800, "height": 32 },
+    { "x": 0, "y": 568, "width": 800, "height": 32 },
+    { "x": 0, "y": 0, "width": 32, "height": 600 },
+    { "x": 768, "y": 0, "width": 32, "height": 600 },
+    { "x": 200, "y": 0, "width": 120, "height": 32 },
+    { "x": 480, "y": 0, "width": 120, "height": 32 },
+    { "x": 200, "y": 568, "width": 120, "height": 32 },
+    { "x": 480, "y": 568, "width": 120, "height": 32 }
+  ],
+  "doors": [
+    { "id": "door_dorm", "x": 33, "y": 270, "target_scene": "dormitory", "target_x": 50, "target_y": 480, "label": "宿舍" },
+    { "id": "door_kitchen", "x": 320, "y": 33, "target_scene": "kitchen", "target_x": 400, "target_y": 500, "label": "厨房" },
+    { "id": "door_living", "x": 600, "y": 33, "target_scene": "living_room", "target_x": 100, "target_y": 300, "label": "客厅" },
+    { "id": "door_lab", "x": 320, "y": 536, "target_scene": "laboratory", "target_x": 400, "target_y": 100, "label": "实验室" }
+  ],
+  "furniture": [
+    { "id": "locker", "type": "储物柜", "x": 100, "y": 50, "width": 64, "height": 120, "color": "#475569", "collidable": true, "label": "储物柜" },
+    { "id": "fire_extinguisher", "type": "灭火器", "x": 700, "y": 50, "width": 32, "height": 64, "color": "#dc2626", "collidable": true, "label": "灭火器" },
+    { "id": "box_pile", "type": "纸箱堆", "x": 400, "y": 280, "width": 80, "height": 60, "color": "#d97706", "collidable": true, "label": "纸箱堆" }
+  ],
+  "risk_zones": [
+    {
+      "id": "corridor_risk_01",
+      "x": 360, "y": 250, "width": 120, "height": 100,
+      "risk_type": "通行/绊倒风险",
+      "description": "走廊中央纸箱堆积",
+      "prompt_hint": "走廊中央有纸箱堆积，检查是否影响通行",
+      "mock_scene": "S08",
+      "camera_image": "assets/camera_views/trip_01.jpg"
+    }
+  ]
+}

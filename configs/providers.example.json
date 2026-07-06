@@ -1,0 +1,30 @@
+{
+  "active_provider": "mock",
+  "providers": {
+    "mock": {
+      "type": "mock",
+      "description": "本地模拟输出，无需网络和 API Key，用于课堂演示。"
+    },
+    "qwen": {
+      "type": "openai_compatible",
+      "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      "model": "qwen-vl-plus",
+      "api_key_env": "DASHSCOPE_API_KEY",
+      "description": "通义千问 Qwen-VL，通过 DashScope OpenAI 兼容接口调用。"
+    },
+    "openai": {
+      "type": "openai_compatible",
+      "base_url": "https://api.openai.com/v1",
+      "model": "gpt-4.1-mini",
+      "api_key_env": "OPENAI_API_KEY",
+      "description": "OpenAI 视觉模型，使用 chat/completions 接口。"
+    },
+    "ollama": {
+      "type": "openai_compatible",
+      "base_url": "http://localhost:11434/v1",
+      "model": "qwen2.5vl:7b",
+      "api_key_env": "OLLAMA_API_KEY",
+      "description": "Ollama 本地视觉模型，需先安装 Ollama 并拉取模型。api_key 可填任意非空字符串。"
+    }
+  }
+}

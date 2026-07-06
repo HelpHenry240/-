@@ -1,0 +1,172 @@
+{
+  "S01": {
+    "has_risk": false,
+    "risks": []
+  },
+  "S02": {
+    "has_risk": true,
+    "risks": [
+      {
+        "type": "触电风险",
+        "objects": [
+          "水杯",
+          "插座"
+        ],
+        "location": "书桌右侧靠墙区域",
+        "level": "高",
+        "reason": "液体容器靠近插座，触发液体靠近电源的规则。",
+        "suggestion": "移动水杯并保持插座周围干燥。"
+      }
+    ]
+  },
+  "S03": {
+    "has_risk": true,
+    "risks": [
+      {
+        "type": "通行/绊倒风险",
+        "objects": [
+          "箱子",
+          "门"
+        ],
+        "location": "门口",
+        "level": "中",
+        "reason": "箱子占据出入口，可能影响通行。",
+        "suggestion": "清理门口箱子。"
+      }
+    ]
+  },
+  "S04": {
+    "has_risk": true,
+    "risks": [
+      {
+        "type": "火灾风险",
+        "objects": [
+          "纸巾",
+          "塑料袋",
+          "灶台"
+        ],
+        "location": "灶台周围",
+        "level": "高",
+        "reason": "易燃物靠近热源，触发火灾风险规则。",
+        "suggestion": "将纸巾和塑料袋移开。"
+      }
+    ]
+  },
+  "S05": {
+    "has_risk": true,
+    "risks": [
+      {
+        "type": "火灾风险",
+        "objects": [
+          "纸巾",
+          "灶台"
+        ],
+        "location": "厨房台面",
+        "level": "低",
+        "reason": "模型把远处纸巾误判为靠近灶台。",
+        "suggestion": "保持纸巾远离热源。"
+      }
+    ],
+    "note": "失败案例：正常厨房被误检为火灾风险。"
+  },
+  "S06": {
+    "has_risk": true,
+    "risks": [
+      {
+        "type": "坠物风险",
+        "objects": [
+          "花瓶"
+        ],
+        "location": "高柜边缘",
+        "level": "中",
+        "reason": "花瓶位于高处边缘，可能掉落。",
+        "suggestion": "移到柜面内侧或低处。"
+      }
+    ]
+  },
+  "S07": {
+    "has_risk": true,
+    "risks": [
+      {
+        "type": "危险物暴露",
+        "objects": [
+          "化学品瓶"
+        ],
+        "location": "实验台",
+        "level": "中",
+        "reason": "危险品未收纳，处于开放位置。",
+        "suggestion": "收纳到专用柜。"
+      }
+    ],
+    "note": "轻微失败：风险类别正确，但等级低估。"
+  },
+  "S08": {
+    "has_risk": true,
+    "risks": [
+      {
+        "type": "通行/绊倒风险",
+        "objects": [
+          "纸箱",
+          "椅子"
+        ],
+        "location": "走廊中央",
+        "level": "高",
+        "reason": "杂物占据主要通道。",
+        "suggestion": "清理走廊杂物。"
+      }
+    ]
+  },
+  "S09": {
+    "has_risk": true,
+    "risks": [
+      {
+        "type": "清洁度异常",
+        "objects": [
+          "垃圾袋",
+          "外卖盒"
+        ],
+        "location": "书桌下方",
+        "level": "低",
+        "reason": "垃圾堆积影响卫生。",
+        "suggestion": "及时清理垃圾。"
+      }
+    ]
+  },
+  "S10": {
+    "has_risk": true,
+    "risks": [
+      {
+        "type": "危险物暴露",
+        "objects": [
+          "水果刀"
+        ],
+        "location": "茶几边缘",
+        "level": "高",
+        "reason": "刀具处于儿童可触达区域。",
+        "suggestion": "收纳到安全位置。"
+      }
+    ]
+  },
+  "S11": {
+    "has_risk": true,
+    "risks": [
+      {
+        "type": "触电风险",
+        "objects": [
+          "积水",
+          "电热水壶",
+          "电源线"
+        ],
+        "location": "厨房台面右侧",
+        "level": "高",
+        "reason": "水和电器、电源线距离过近。",
+        "suggestion": "擦干积水并整理电源线。"
+      }
+    ]
+  },
+  "S12": {
+    "has_risk": false,
+    "risks": [],
+    "note": "失败案例：半遮挡电线导致漏检。"
+  }
+}

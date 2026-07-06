@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>批量评测 - AI 视觉室内巡检</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .batch-shell { display: grid; gap: 16px; }
+      .batch-panel { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); box-shadow: var(--shadow); padding: 20px; }
+      .config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+      .form-group { display: grid; gap: 6px; }
+      .form-group label { font-size: 13px; font-weight: 700; color: var(--ink); }
+      .form-group .hint { font-size: 12px; color: var(--muted); }
+      .form-input, .form-select { width: 100%; height: 38px; border-radius: 8px; border: 1px solid var(--line); background: #fff; color: var(--ink); padding: 0 10px; font: inherit; }
+      .form-input:focus, .form-select:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px rgba(15,118,110,0.12); }
+      .run-btn { min-height: 46px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: #fff; font-weight: 800; font-size: 15px; cursor: pointer; width: 100%; }
+      .run-btn:hover:not(:disabled) { background: var(--accent-strong); }
+      .run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+      .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 16px; }
+      .stat-card { border: 1px solid var(--line); border-radius: 8px; background: var(--surface-soft); padding: 14px; text-align: center; }
+      .stat-card .stat-value { font-size: 28px; font-weight: 800; color: var(--ink); }
+ .stat-card .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+      .stat-card.danger .stat-value { color: var(--danger); }
+      .stat-card.warning .stat-value { color: var(--warn); }
+      .stat-card.success .stat-value { color: var(--accent-strong); }
+      .tab-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+      .tab-btn { padding: 6px 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--muted); cursor: pointer; font-size: 13px; font-weight: 700; }
+      .tab-btn.active { border-color: var(--accent); background: #f0fdfa; color: var(--accent-strong); }
+      .tab-content { display: none; }
+      .tab-content.active { display: block; }
+      .sample-table { width: 100%; border-collapse: collapse; }
+      .sample-table th, .sample-table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--line); font-size: 13px; }
+      .sample-table th { color: var(--muted); font-weight: 700; }
+      .failure-card { border: 1px solid var(--line); border-radius: 8px; background: var(--surface-soft); padding: 14px; margin-bottom: 12px; }
+      .failure-card .error-detail { color: var(--muted); font-size: 14px; line-height: 1.58; margin: 8px 0; }
+      .failure-card .analysis-section { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
+      .failure-card .analysis-section h4 { font-size: 13px; color: var(--ink); margin: 0 0 6px; }
+      .failure-card .analysis-section ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+      .loading-overlay { display: none; text-align: center; padding: 40px; }
+      .loading-overlay.active { display: block; }
+      .loading-overlay .spinner { display: inline-block; width: 40px; height: 40px; border: 3px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .back-link { display: inline-flex; align-items: center; gap: 4px; color: var(--accent-strong); font-size: 13px; font-weight: 700; text-decoration: none; }
+      .empty-state { text-align: center; padding: 40px; color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">批量评测</p>
+          <h1>数据集巡检与评测</h1>
+        </div>
+        <div class="top-actions">
+          <a href="index.html" class="back-link">&larr; Demo 展示</a>
+          <a href="inspect.html" class="back-link">&larr; 实时巡检</a>
+        </div>
+      </header>
+
+      <div class="batch-shell">
+        <!-- 配置面板 -->
+        <section class="batch-panel">
+          <h2>运行配置</h2>
+          <div class="config-grid">
+            <div class="form-group">
+              <label>数据集</label>
+              <select id="datasetSelect" class="form-select">
+                <option value="demo">demo（内置 12 场景）</option>
+              </select>
+              <span class="hint" id="datasetHint"></span>
+            </div>
+            <div class="form-group">
+              <label>Provider</label>
+              <select id="providerSelect" class="form-select">
+                <option value="mock">Mock（本地模拟）</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Prompt 模板</label>
+              <select id="promptSelect" class="form-select">
+                <option value="risk_inspection_v1">risk_inspection_v1</option>
+              </select>
+            </div>
+            <div class="form-group" id="apiKeyGroup" style="display:none;">
+              <label>API Key（可选）</label>
+              <input type="password" id="apiKeyInput" class="form-input" placeholder="留空则用环境变量" />
+            </div>
+          </div>
+          <button id="runBtn" class="run-btn" type="button">开始批量运行</button>
+        </section>
+
+        <!-- 加载中 -->
+        <section id="loadingOverlay" class="batch-panel loading-overlay">
+          <div class="spinner"></div>
+          <p style="margin-top:12px; color:var(--muted);">正在批量巡检，请稍候...</p>
+          <p id="loadingProgress" style="color:var(--muted); font-size:13px;"></p>
+        </section>
+
+        <!-- 结果区域 -->
+        <section id="resultSection" style="display:none;">
+          <!-- 统计卡片 -->
+          <div class="batch-panel">
+            <h2>评测概览 <span id="runIdLabel" style="font-size:13px; color:var(--muted); font-weight:400;"></span></h2>
+            <div class="stats-grid" id="statsGrid"></div>
+          </div>
+
+          <!-- Tab 切换 -->
+          <div class="batch-panel">
+            <div class="tab-row">
+              <button class="tab-btn active" data-tab="samples">样本明细</button>
+              <button class="tab-btn" data-tab="failures">失败案例分析</button>
+              <button class="tab-btn" data-tab="history">历史运行</button>
+            </div>
+
+            <div id="tabSamples" class="tab-content active">
+              <table class="sample-table">
+                <thead>
+                  <tr>
+                    <th>样本</th>
+                    <th>场景类型</th>
+                    <th>人工标注</th>
+                    <th>模型输出</th>
+                    <th>结果</th>
+                  </tr>
+                </thead>
+                <tbody id="sampleTableBody"></tbody>
+              </table>
+            </div>
+
+            <div id="tabFailures" class="tab-content">
+              <div id="failureList"></div>
+            </div>
+
+            <div id="tabHistory" class="tab-content">
+              <table class="sample-table">
+                <thead>
+                  <tr>
+                    <th>Run ID</th>
+                    <th>数据集</th>
+                    <th>Provider</th>
+                    <th>成功/总数</th>
+                    <th>时间</th>
+                  </tr>
+                </thead>
+                <tbody id="historyTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script src="batch.js"></script>
+  </body>
+</html>

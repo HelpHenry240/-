@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 430" width="640" height="430" role="img" aria-label="走廊杂物堆积">
+  <defs>
+    <style>
+      .title { font: 700 22px "Microsoft YaHei", Arial, sans-serif; fill: #0f172a; }
+      .label { font: 600 13px "Microsoft YaHei", Arial, sans-serif; fill: #334155; }
+      .object-label { font: 700 14px "Microsoft YaHei", Arial, sans-serif; fill: #0f172a; }
+      .tiny { font: 800 18px Arial, sans-serif; fill: #fff; }
+      .summary { font: 500 13px "Microsoft YaHei", Arial, sans-serif; fill: #475569; }
+    </style>
+  </defs>
+  <rect width="640" height="430" rx="18" fill="#f8fafc"/>
+  <rect x="24" y="48" width="592" height="348" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="30" y="30" class="title">S08 走廊杂物堆积</text>
+  <rect x="548" y="12" width="68" height="28" rx="14" fill="#dc2626"/>
+  <text x="582" y="31" text-anchor="middle" font-family="Microsoft YaHei, Arial" font-size="14" font-weight="700" fill="#fff">风险</text>
+  <rect x="105" y="55" width="400" height="330" rx="8" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/><text x="115" y="77" class="label">corridor</text>
+<rect x="40" y="105" width="85" height="105" rx="8" fill="#fde68a" stroke="#d97706" stroke-width="2"/><text x="50" y="127" class="label">door</text>
+<rect x="495" y="105" width="85" height="105" rx="8" fill="#fde68a" stroke="#d97706" stroke-width="2"/><text x="505" y="127" class="label">door</text>
+  <g><rect x="251" y="200" width="48" height="40" rx="4" fill="#f59e0b" stroke="#78350f" stroke-width="2"/><path d="M251 215 H299" stroke="#78350f" stroke-width="2"/><text x="275" y="272" text-anchor="middle" class="object-label">纸箱</text></g>
+<g><rect x="313" y="225" width="44" height="34" rx="6" fill="#0f766e" stroke="#134e4a" stroke-width="2"/><path d="M319 259 V279 M351 259 V279" stroke="#134e4a" stroke-width="3"/><text x="335" y="297" text-anchor="middle" class="object-label">椅子</text></g>
+<g><rect x="216" y="255" width="48" height="40" rx="4" fill="#d97706" stroke="#78350f" stroke-width="2"/><path d="M216 270 H264" stroke="#78350f" stroke-width="2"/><text x="240" y="327" text-anchor="middle" class="object-label">纸箱</text></g>
+  <text x="34" y="415" class="summary">纸箱和椅子占据走廊中央，影响多人通行。</text>
+</svg>

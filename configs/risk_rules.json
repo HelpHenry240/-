@@ -1,0 +1,86 @@
+[
+  {
+    "rule_id": "electric_shock_001",
+    "risk_type": "electric_shock",
+    "risk_name": "触电风险",
+    "description": "液体、积水或潮湿物体靠近插座、电器、电线时判定为触电风险。",
+    "trigger_conditions": [
+      "液体容器（水杯、水壶等）距离插座、电源线、电器小于安全距离",
+      "地面或台面积水靠近带电设备",
+      "潮湿物体接触电源区域"
+    ],
+    "level_policy": "靠近插座或正在运行电器时为高风险；仅潮湿物体靠近电器但未接触为中风险。",
+    "positive_examples": ["水杯放在插座旁边", "积水漫过电源线", "湿布搭在电器上"],
+    "negative_examples": ["水杯在桌面中央远离插座", "干燥环境下电器正常使用"]
+  },
+  {
+    "rule_id": "fire_001",
+    "risk_type": "fire",
+    "risk_name": "火灾风险",
+    "description": "纸张、布料、塑料袋等易燃物靠近灶台、电暖器、热水壶等热源时判定为火灾风险。",
+    "trigger_conditions": [
+      "易燃物（纸张、布料、塑料袋）距离热源（灶台、电暖器、热水壶）小于安全距离",
+      "热源处于开启或余温状态且有易燃物在附近",
+      "易燃物堆放在电器散热口附近"
+    ],
+    "level_policy": "易燃物与热源距离很近或热源开启时为高风险；距离较远但仍需注意为中风险。",
+    "positive_examples": ["纸巾放在灶台旁", "塑料袋靠近电暖器", "布料搭在热水壶上"],
+    "negative_examples": ["纸巾盒放在远离灶台的台面", "电器关闭且周围无易燃物"]
+  },
+  {
+    "rule_id": "trip_or_block_001",
+    "risk_type": "trip_or_block",
+    "risk_name": "通行/绊倒风险",
+    "description": "箱子、椅子、电线、杂物位于门口、走廊、主要通道时判定为通行或绊倒风险。",
+    "trigger_conditions": [
+      "物体（箱子、椅子、杂物）占据门口、走廊或主要通行区域",
+      "电线横跨地面通道",
+      "杂物堆叠影响正常通行宽度"
+    ],
+    "level_policy": "阻挡出口或夜间不易观察的位置为中高风险；仅边缘侵占通道为低风险。",
+    "positive_examples": ["箱子堆在门口", "电线横跨走廊", "椅子挡在通道中央"],
+    "negative_examples": ["物品整齐靠墙摆放", "电线走线槽固定且不跨通道"]
+  },
+  {
+    "rule_id": "falling_object_001",
+    "risk_type": "falling_object",
+    "risk_name": "坠物风险",
+    "description": "重物、花瓶、箱子等放在高处边缘或不稳定堆叠时判定为坠物风险。",
+    "trigger_conditions": [
+      "重物或易碎物放置在高柜、架子边缘",
+      "物品堆叠不稳定且高度超过安全阈值",
+      "高处物品位于人员活动区域上方"
+    ],
+    "level_policy": "位于头顶高度或人常经过区域上方为高风险；高处边缘但下方无人为低风险。",
+    "positive_examples": ["花瓶放在高柜外侧边缘", "箱子堆叠过高且不稳", "重物放在顶层架子边缘"],
+    "negative_examples": ["物品放在低处稳定位置", "高柜物品放在内侧靠墙位置"]
+  },
+  {
+    "rule_id": "danger_exposure_001",
+    "risk_type": "danger_exposure",
+    "risk_name": "危险物暴露",
+    "description": "刀具、化学品、工具等危险物处于儿童或无关人员易触达区域时判定为暴露风险。",
+    "trigger_conditions": [
+      "锋利刀具放在矮桌、茶几等低处",
+      "化学品瓶未收纳且在开放区域",
+      "危险工具放在儿童可触及的高度"
+    ],
+    "level_policy": "无收纳、无标签或靠近活动区域为中高风险；有防护但位置偏低为中风险。",
+    "positive_examples": ["水果刀放在矮茶几边缘", "化学品瓶在实验台开放区域", "工具散落在地面"],
+    "negative_examples": ["刀具收纳在带锁抽屉", "化学品放入专用柜并加标签"]
+  },
+  {
+    "rule_id": "cleanliness_001",
+    "risk_type": "cleanliness",
+    "risk_name": "清洁度异常",
+    "description": "垃圾、污渍、食物残渣、杂乱堆积影响环境卫生或管理状态时判定为清洁度异常。",
+    "trigger_conditions": [
+      "垃圾袋、外卖盒等生活垃圾堆积未清理",
+      "食物残渣或污渍影响卫生",
+      "杂物杂乱堆积影响环境管理状态"
+    ],
+    "level_policy": "影响通行或靠近电器、热源时风险升级为中高；仅局部卫生问题为低风险。",
+    "positive_examples": ["垃圾袋堆在桌下", "食物残渣散落台面", "杂物堆积影响通行"],
+    "negative_examples": ["垃圾已入桶且有盖", "台面整洁无残渣"]
+  }
+]

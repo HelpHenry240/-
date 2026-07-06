@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>实时巡检 - AI 视觉室内巡检</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .inspect-shell {
+        display: grid;
+        grid-template-columns: 420px minmax(0, 1fr);
+        gap: 16px;
+        align-items: start;
+      }
+      .inspect-panel,
+      .inspect-result {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+        padding: 20px;
+      }
+      .form-group {
+        display: grid;
+        gap: 6px;
+        margin-bottom: 16px;
+      }
+      .form-group label {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--ink);
+      }
+      .form-group .hint {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .form-input,
+      .form-select {
+        width: 100%;
+        height: 38px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--ink);
+        padding: 0 10px;
+        font: inherit;
+      }
+      .form-input:focus,
+      .form-select:focus {
+        border-color: var(--accent);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+      }
+      .upload-zone {
+        display: grid;
+        place-items: center;
+        min-height: 200px;
+        border: 2px dashed var(--line);
+        border-radius: 8px;
+        background: var(--surface-soft);
+        cursor: pointer;
+        transition: border-color 0.2s, background 0.2s;
+        text-align: center;
+        padding: 20px;
+      }
+      .upload-zone:hover,
+      .upload-zone.dragover {
+        border-color: var(--accent);
+        background: #f0fdfa;
+      }
+      .upload-zone .upload-icon {
+        font-size: 36px;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+      .upload-zone .upload-text {
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .upload-zone .upload-hint {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 4px;
+      }
+      .preview-wrap {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface-soft);
+        padding: 10px;
+      }
+      .preview-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .preview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px;
+      }
+      .preview-item {
+        position: relative;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+        background: #fff;
+        aspect-ratio: 4 / 3;
+      }
+      .preview-item img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .preview-name {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        min-height: 24px;
+        padding: 4px 28px 4px 6px;
+        background: rgba(15, 23, 42, 0.76);
+        color: #fff;
+        font-size: 11px;
+        line-height: 16px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .preview-clear {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        border: none;
+        background: rgba(15, 23, 42, 0.76);
+        color: #fff;
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+      }
+      .secondary-btn {
+        min-height: 30px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--ink);
+        cursor: pointer;
+        padding: 0 10px;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .secondary-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent-strong);
+      }
+      .preview-item .preview-clear {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+      }
+      .inspect-btn {
+        width: 100%;
+        min-height: 46px;
+        border-radius: 8px;
+        border: 1px solid var(--accent);
+        background: var(--accent);
+        color: #fff;
+        font-weight: 800;
+        font-size: 15px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .inspect-btn:hover:not(:disabled) {
+        background: var(--accent-strong);
+      }
+      .inspect-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .loading-bar {
+        display: none;
+        height: 3px;
+        background: var(--surface-soft);
+        border-radius: 2px;
+        overflow: hidden;
+        margin-top: 12px;
+      }
+      .loading-bar.active {
+        display: block;
+      }
+      .loading-bar::after {
+        content: "";
+        display: block;
+        width: 40%;
+        height: 100%;
+        background: var(--accent);
+        border-radius: 2px;
+        animation: slide 1.2s ease-in-out infinite;
+      }
+      @keyframes slide {
+        0% { margin-left: -40%; }
+        100% { margin-left: 100%; }
+      }
+      .result-empty {
+        display: grid;
+        place-items: center;
+        min-height: 300px;
+        color: var(--muted);
+        text-align: center;
+      }
+      .result-empty .icon {
+        font-size: 48px;
+        margin-bottom: 12px;
+        opacity: 0.4;
+      }
+      .result-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--line);
+      }
+      .result-meta {
+        font-size: 13px;
+        color: var(--muted);
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .result-meta span {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .result-risk-list {
+        display: grid;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .heatmap-box {
+        display: none;
+        margin-bottom: 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface-soft);
+        padding: 12px;
+      }
+      .heatmap-stage {
+        position: relative;
+        display: inline-block;
+        max-width: 100%;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+      .heatmap-stage img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+      }
+      .heatmap-region {
+        position: absolute;
+        border: 2px solid var(--danger);
+        background: rgba(185, 28, 28, 0.14);
+        box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.02);
+      }
+      .heatmap-label {
+        position: absolute;
+        left: -2px;
+        top: -2px;
+        max-width: 220px;
+        min-height: 24px;
+        padding: 3px 7px;
+        border-radius: 6px 6px 6px 0;
+        background: var(--danger);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .result-risk-item {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface-soft);
+        padding: 14px;
+      }
+      .result-risk-item p {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.58;
+      }
+      .error-box {
+        border: 1px solid #fecaca;
+        border-radius: 8px;
+        background: #fef2f2;
+        padding: 14px;
+        color: var(--danger);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      .tab-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .tab-btn {
+        padding: 6px 14px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: var(--surface);
+        color: var(--muted);
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .tab-btn.active {
+        border-color: var(--accent);
+        background: #f0fdfa;
+        color: var(--accent-strong);
+      }
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--accent-strong);
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+      }
+      @media (max-width: 1100px) {
+        .inspect-shell {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">实时巡检</p>
+          <h1>AI 视觉室内巡检</h1>
+        </div>
+        <div class="top-actions">
+          <a href="index.html" class="back-link">&larr; 返回 Demo 展示</a>
+        </div>
+      </header>
+
+      <div class="inspect-shell">
+        <!-- 左侧：上传与配置 -->
+        <section class="inspect-panel">
+          <h2>上传图片并巡检</h2>
+
+          <div class="form-group">
+            <label>选择图片</label>
+            <div id="uploadZone" class="upload-zone">
+              <div class="upload-icon">&#128247;</div>
+              <div class="upload-text">点击或拖拽图片到此处</div>
+              <div class="upload-hint">支持 JPG / PNG / SVG / WebP，可同时上传多视角图片</div>
+            </div>
+            <input type="file" id="fileInput" accept="image/jpeg,image/png,image/svg+xml,image/webp" multiple hidden />
+            <div id="previewWrap" class="preview-wrap" style="display:none;">
+              <div class="preview-toolbar">
+                <span id="previewCount">已选择 0 张图片</span>
+                <button id="clearBtn" class="secondary-btn" type="button">清空</button>
+              </div>
+              <div id="previewList" class="preview-grid"></div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>模型 Provider</label>
+            <select id="providerSelect" class="form-select">
+              <option value="mock">Mock（本地模拟，无需网络）</option>
+            </select>
+            <span class="hint" id="providerHint"></span>
+          </div>
+
+          <div class="form-group" id="apiKeyGroup" style="display:none;">
+            <label>API Key（可选）</label>
+            <input type="password" id="apiKeyInput" class="form-input" placeholder="留空则从环境变量读取" />
+            <span class="hint">Key 仅用于本次请求，不会保存到服务器磁盘。</span>
+          </div>
+
+          <div class="form-group">
+            <label>Prompt 模板</label>
+            <select id="promptSelect" class="form-select">
+              <option value="risk_inspection_v1">risk_inspection_v1（默认）</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="mockSceneGroup" style="display:none;">
+            <label>Mock 场景（可选）</label>
+            <select id="mockSceneSelect" class="form-select">
+              <option value="">通用模拟输出</option>
+            </select>
+            <span class="hint">选择指定场景可返回该场景的预设结果，用于测试。</span>
+          </div>
+
+          <button id="inspectBtn" class="inspect-btn" type="button" disabled>开始巡检</button>
+          <div id="loadingBar" class="loading-bar"></div>
+        </section>
+
+        <!-- 右侧：结果展示 -->
+        <section class="inspect-result">
+          <div id="resultEmpty" class="result-empty">
+            <div class="icon">&#128269;</div>
+            <p>上传图片后点击「开始巡检」<br />模型识别结果将在此处展示</p>
+          </div>
+
+          <div id="resultContent" style="display:none;">
+            <div class="result-header">
+              <div class="badge-row">
+                <span id="statusBadge" class="badge"></span>
+                <span id="validBadge" class="badge"></span>
+              </div>
+              <div class="result-meta">
+                <span id="metaProvider"></span>
+                <span id="metaModel"></span>
+                <span id="metaInput"></span>
+                <span id="metaTime"></span>
+              </div>
+            </div>
+
+            <div class="tab-row">
+              <button class="tab-btn active" data-tab="visual">可视化结果</button>
+              <button class="tab-btn" data-tab="json">原始 JSON</button>
+              <button class="tab-btn" data-tab="raw">模型原文</button>
+            </div>
+
+            <div id="tabVisual" class="tab-content active">
+              <div id="heatmapBox" class="heatmap-box"></div>
+              <div id="riskList" class="result-risk-list"></div>
+              <div id="evidenceBox" class="result-box" style="margin-top:12px;"></div>
+            </div>
+
+            <div id="tabJson" class="tab-content">
+              <pre id="jsonOutput" class="report-pre"></pre>
+            </div>
+
+            <div id="tabRaw" class="tab-content">
+              <pre id="rawOutput" class="report-pre"></pre>
+            </div>
+
+            <div id="errorBox" class="error-box" style="display:none; margin-top:12px;"></div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script src="data.js"></script>
+    <script src="inspect.js"></script>
+  </body>
+</html>

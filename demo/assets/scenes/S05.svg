@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 430" width="640" height="430" role="img" aria-label="厨房台面正常状态">
+  <defs>
+    <style>
+      .title { font: 700 22px "Microsoft YaHei", Arial, sans-serif; fill: #0f172a; }
+      .label { font: 600 13px "Microsoft YaHei", Arial, sans-serif; fill: #334155; }
+      .object-label { font: 700 14px "Microsoft YaHei", Arial, sans-serif; fill: #0f172a; }
+      .tiny { font: 800 18px Arial, sans-serif; fill: #fff; }
+      .summary { font: 500 13px "Microsoft YaHei", Arial, sans-serif; fill: #475569; }
+    </style>
+  </defs>
+  <rect width="640" height="430" rx="18" fill="#f8fafc"/>
+  <rect x="24" y="48" width="592" height="348" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="30" y="30" class="title">S05 厨房台面正常状态</text>
+  <rect x="548" y="12" width="68" height="28" rx="14" fill="#16a34a"/>
+  <text x="582" y="31" text-anchor="middle" font-family="Microsoft YaHei, Arial" font-size="14" font-weight="700" fill="#fff">正常</text>
+  <rect x="55" y="75" width="500" height="150" rx="8" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/><text x="65" y="97" class="label">counter</text>
+<rect x="370" y="110" width="105" height="70" rx="8" fill="#bae6fd" stroke="#0284c7" stroke-width="2"/><text x="380" y="132" class="label">sink</text>
+  <g><rect x="149" y="123" width="72" height="44" rx="8" fill="#111827"/><circle cx="170" cy="145" r="10" fill="#f8fafc"/><circle cx="201" cy="145" r="10" fill="#f8fafc"/><text x="185" y="197" text-anchor="middle" class="object-label">灶台</text></g>
+<g><circle cx="190" cy="125" r="24" fill="#64748b" stroke="#334155" stroke-width="2"/><path d="M210 125 H252" stroke="#334155" stroke-width="6" stroke-linecap="round"/><text x="190" y="177" text-anchor="middle" class="object-label">锅</text></g>
+<g><rect x="448" y="119" width="44" height="32" rx="2" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/><path d="M456 132 H482 M456 142 H478" stroke="#94a3b8" stroke-width="2"/><text x="470" y="187" text-anchor="middle" class="object-label">纸巾</text></g>
+  <text x="34" y="415" class="summary">厨具收纳整齐，纸张与热源保持距离。</text>
+</svg>

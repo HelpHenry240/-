@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 430" width="640" height="430" role="img" aria-label="门口箱子阻塞">
+  <defs>
+    <style>
+      .title { font: 700 22px "Microsoft YaHei", Arial, sans-serif; fill: #0f172a; }
+      .label { font: 600 13px "Microsoft YaHei", Arial, sans-serif; fill: #334155; }
+      .object-label { font: 700 14px "Microsoft YaHei", Arial, sans-serif; fill: #0f172a; }
+      .tiny { font: 800 18px Arial, sans-serif; fill: #fff; }
+      .summary { font: 500 13px "Microsoft YaHei", Arial, sans-serif; fill: #475569; }
+    </style>
+  </defs>
+  <rect width="640" height="430" rx="18" fill="#f8fafc"/>
+  <rect x="24" y="48" width="592" height="348" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="30" y="30" class="title">S03 门口箱子阻塞</text>
+  <rect x="548" y="12" width="68" height="28" rx="14" fill="#dc2626"/>
+  <text x="582" y="31" text-anchor="middle" font-family="Microsoft YaHei, Arial" font-size="14" font-weight="700" fill="#fff">风险</text>
+  <rect x="70" y="70" width="210" height="125" rx="8" fill="#d9f99d" stroke="#65a30d" stroke-width="2"/><text x="80" y="92" class="label">desk</text>
+<rect x="390" y="70" width="180" height="165" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/><text x="400" y="92" class="label">bed</text>
+<rect x="40" y="260" width="100" height="120" rx="8" fill="#fde68a" stroke="#d97706" stroke-width="2"/><text x="50" y="282" class="label">door</text>
+  <g><rect x="56" y="285" width="48" height="40" rx="4" fill="#f59e0b" stroke="#78350f" stroke-width="2"/><path d="M56 300 H104" stroke="#78350f" stroke-width="2"/><text x="80" y="357" text-anchor="middle" class="object-label">箱子</text></g>
+<g><rect x="101" y="295" width="48" height="40" rx="4" fill="#d97706" stroke="#78350f" stroke-width="2"/><path d="M101 310 H149" stroke="#78350f" stroke-width="2"/><text x="125" y="367" text-anchor="middle" class="object-label">箱子</text></g>
+  <text x="34" y="415" class="summary">收纳箱堆在门口，影响出入和紧急疏散。</text>
+</svg>

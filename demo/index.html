@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI 视觉室内巡检 Demo</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">本科课程小型闭环 Demo</p>
+          <h1>AI 视觉室内巡检</h1>
+        </div>
+        <div class="top-actions">
+          <a href="inspect.html" class="ghost-btn" style="text-decoration:none; display:inline-flex; align-items:center;">实时巡检</a>
+          <a href="batch.html" class="ghost-btn" style="text-decoration:none; display:inline-flex; align-items:center;">批量评测</a>
+          <a href="compare.html" class="ghost-btn" style="text-decoration:none; display:inline-flex; align-items:center;">Prompt对比</a>
+          <a href="annotate.html" class="ghost-btn" style="text-decoration:none; display:inline-flex; align-items:center;">样本标注</a>
+          <button id="exportReport" class="primary-btn" type="button">导出当前报告</button>
+        </div>
+      </header>
+
+      <section class="summary-grid" id="summaryGrid" aria-label="项目统计"></section>
+
+      <section class="workspace">
+        <aside class="scene-panel">
+          <div class="panel-head">
+            <h2>巡检样本</h2>
+            <select id="sceneFilter" aria-label="筛选样本">
+              <option value="all">全部样本</option>
+              <option value="risk">仅风险场景</option>
+              <option value="normal">仅正常场景</option>
+              <option value="failure">仅失败案例</option>
+              <option value="宿舍">宿舍</option>
+              <option value="厨房">厨房</option>
+              <option value="客厅">客厅</option>
+              <option value="实验室">实验室</option>
+              <option value="走廊">走廊</option>
+            </select>
+          </div>
+          <div id="sceneList" class="scene-list"></div>
+        </aside>
+
+        <section class="detail-panel" id="detailPanel" aria-live="polite"></section>
+      </section>
+
+      <section class="rules-section">
+        <div class="section-head">
+          <h2>风险规则库</h2>
+          <p>模型输出必须引用这些规则，便于解释和评测。</p>
+        </div>
+        <div class="rules-grid" id="rulesGrid"></div>
+      </section>
+
+      <section class="failure-section">
+        <div class="section-head">
+          <h2>失败案例分析</h2>
+          <p>课程要求保留模型错误，用于说明 VLM 的能力边界。</p>
+        </div>
+        <div class="failure-grid" id="failureGrid"></div>
+      </section>
+    </main>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,48 @@
+{
+  "scene_id": "living_room",
+  "scene_name": "客厅",
+  "scene_type": "客厅",
+  "width": 25,
+  "height": 19,
+  "tile_size": 32,
+  "spawn_point": { "x": 100, "y": 300 },
+  "walls": [
+    { "x": 0, "y": 0, "width": 800, "height": 32 },
+    { "x": 0, "y": 568, "width": 800, "height": 32 },
+    { "x": 0, "y": 0, "width": 32, "height": 600 },
+    { "x": 768, "y": 0, "width": 32, "height": 600 },
+    { "x": 0, "y": 250, "width": 32, "height": 120 }
+  ],
+  "doors": [
+    { "id": "door_corridor", "x": 33, "y": 270, "target_scene": "corridor", "target_x": 600, "target_y": 100, "label": "走廊" }
+  ],
+  "furniture": [
+    { "id": "sofa", "type": "沙发", "x": 500, "y": 350, "width": 200, "height": 100, "color": "#6b7280", "collidable": true, "label": "沙发" },
+    { "id": "coffee_table", "type": "茶几", "x": 350, "y": 400, "width": 100, "height": 60, "color": "#92400e", "collidable": true, "label": "茶几" },
+    { "id": "tv_stand", "type": "电视柜", "x": 100, "y": 64, "width": 160, "height": 50, "color": "#1f2937", "collidable": true, "label": "电视柜" },
+    { "id": "tall_cabinet", "type": "高柜", "x": 320, "y": 64, "width": 80, "height": 50, "color": "#57534e", "collidable": true, "label": "高柜" },
+    { "id": "vase", "type": "花瓶", "x": 390, "y": 55, "width": 24, "height": 30, "color": "#3b82f6", "collidable": false, "label": "花瓶" },
+    { "id": "fruit_knife", "type": "水果刀", "x": 370, "y": 400, "width": 30, "height": 12, "color": "#d1d5db", "collidable": false, "label": "水果刀" },
+    { "id": "toys", "type": "玩具", "x": 300, "y": 480, "width": 48, "height": 40, "color": "#fbbf24", "collidable": false, "label": "玩具" }
+  ],
+  "risk_zones": [
+    {
+      "id": "living_risk_01",
+      "x": 370, "y": 40, "width": 80, "height": 60,
+      "risk_type": "坠物风险",
+      "description": "花瓶放在高柜边缘",
+      "prompt_hint": "高柜顶部有花瓶放在边缘，检查是否有坠物风险",
+      "mock_scene": "S06",
+      "camera_image": "assets/camera_views/falling_01.jpg"
+    },
+    {
+      "id": "living_risk_02",
+      "x": 340, "y": 380, "width": 100, "height": 80,
+      "risk_type": "危险物暴露",
+      "description": "水果刀在矮茶几边缘",
+      "prompt_hint": "茶几上有水果刀，检查是否在儿童可触达区域",
+      "mock_scene": "S10",
+      "camera_image": "assets/camera_views/knife_01.jpg"
+    }
+  ]
+}

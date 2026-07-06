@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 430" width="640" height="430" role="img" aria-label="厨房纸张靠近灶台">
+  <defs>
+    <style>
+      .title { font: 700 22px "Microsoft YaHei", Arial, sans-serif; fill: #0f172a; }
+      .label { font: 600 13px "Microsoft YaHei", Arial, sans-serif; fill: #334155; }
+      .object-label { font: 700 14px "Microsoft YaHei", Arial, sans-serif; fill: #0f172a; }
+      .tiny { font: 800 18px Arial, sans-serif; fill: #fff; }
+      .summary { font: 500 13px "Microsoft YaHei", Arial, sans-serif; fill: #475569; }
+    </style>
+  </defs>
+  <rect width="640" height="430" rx="18" fill="#f8fafc"/>
+  <rect x="24" y="48" width="592" height="348" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="30" y="30" class="title">S04 厨房纸张靠近灶台</text>
+  <rect x="548" y="12" width="68" height="28" rx="14" fill="#dc2626"/>
+  <text x="582" y="31" text-anchor="middle" font-family="Microsoft YaHei, Arial" font-size="14" font-weight="700" fill="#fff">风险</text>
+  <rect x="55" y="75" width="500" height="150" rx="8" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/><text x="65" y="97" class="label">counter</text>
+<rect x="370" y="110" width="105" height="70" rx="8" fill="#bae6fd" stroke="#0284c7" stroke-width="2"/><text x="380" y="132" class="label">sink</text>
+  <g><rect x="144" y="123" width="72" height="44" rx="8" fill="#111827"/><circle cx="165" cy="145" r="10" fill="#f8fafc"/><circle cx="196" cy="145" r="10" fill="#f8fafc"/><text x="180" y="197" text-anchor="middle" class="object-label">灶台</text></g>
+<g><rect x="96" y="122" width="44" height="32" rx="2" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/><path d="M104 135 H130 M104 145 H126" stroke="#94a3b8" stroke-width="2"/><text x="118" y="190" text-anchor="middle" class="object-label">纸巾</text></g>
+<g><path d="M226 163 L234 131 Q250 113 266 131 L274 163 Z" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/><text x="250" y="197" text-anchor="middle" class="object-label">塑料袋</text></g>
+<g><path d="M187 152 C167 135, 185 126, 179 106 C199 122, 212 132, 187 152 Z" fill="#ef4444"/><text x="187" y="182" text-anchor="middle" class="object-label">火源</text></g>
+  <text x="34" y="415" class="summary">纸巾和塑料袋放在灶台旁，靠近热源。</text>
+</svg>

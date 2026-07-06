@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 430" width="640" height="430" role="img" aria-label="实验室化学品暴露">
+  <defs>
+    <style>
+      .title { font: 700 22px "Microsoft YaHei", Arial, sans-serif; fill: #0f172a; }
+      .label { font: 600 13px "Microsoft YaHei", Arial, sans-serif; fill: #334155; }
+      .object-label { font: 700 14px "Microsoft YaHei", Arial, sans-serif; fill: #0f172a; }
+      .tiny { font: 800 18px Arial, sans-serif; fill: #fff; }
+      .summary { font: 500 13px "Microsoft YaHei", Arial, sans-serif; fill: #475569; }
+    </style>
+  </defs>
+  <rect width="640" height="430" rx="18" fill="#f8fafc"/>
+  <rect x="24" y="48" width="592" height="348" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="30" y="30" class="title">S07 实验室化学品暴露</text>
+  <rect x="548" y="12" width="68" height="28" rx="14" fill="#dc2626"/>
+  <text x="582" y="31" text-anchor="middle" font-family="Microsoft YaHei, Arial" font-size="14" font-weight="700" fill="#fff">风险</text>
+  <rect x="70" y="105" width="430" height="145" rx="8" fill="#ccfbf1" stroke="#0f766e" stroke-width="2"/><text x="80" y="127" class="label">lab bench</text>
+<rect x="505" y="80" width="75" height="185" rx="8" fill="#fed7aa" stroke="#ea580c" stroke-width="2"/><text x="515" y="102" class="label">cabinet</text>
+  <g><rect x="128" y="142" width="20" height="18" rx="3" fill="#e2e8f0" stroke="#0f172a" stroke-width="2"/><rect x="121" y="160" width="34" height="44" rx="7" fill="#10b981" stroke="#0f172a" stroke-width="2"/><text x="138" y="185" text-anchor="middle" class="tiny">!</text><text x="138" y="222" text-anchor="middle" class="object-label">化学品</text></g>
+<g><rect x="175" y="142" width="20" height="18" rx="3" fill="#e2e8f0" stroke="#0f172a" stroke-width="2"/><rect x="168" y="160" width="34" height="44" rx="7" fill="#f43f5e" stroke="#0f172a" stroke-width="2"/><text x="185" y="185" text-anchor="middle" class="tiny">!</text><text x="185" y="222" text-anchor="middle" class="object-label">化学品</text></g>
+<g><circle cx="270" cy="175" r="13" fill="none" stroke="#64748b" stroke-width="4"/><circle cx="300" cy="175" r="13" fill="none" stroke="#64748b" stroke-width="4"/><path d="M283 175 H287" stroke="#64748b" stroke-width="4"/><text x="285" y="227" text-anchor="middle" class="object-label">护目镜</text></g>
+  <text x="34" y="415" class="summary">化学品瓶未收纳，放在实验台边缘且标签朝外。</text>
+</svg>
