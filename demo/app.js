@@ -1,281 +1,277 @@
 (function () {
-  const scenes = window.DEMO_SCENES || [];
-  const rules = window.RISK_RULES || [];
-  const modelResults = window.MOCK_RESULTS || {};
+  "use strict";
 
-  const sceneList = document.getElementById("sceneList");
-  const detailPanel = document.getElementById("detailPanel");
-  const summaryGrid = document.getElementById("summaryGrid");
-  const rulesGrid = document.getElementById("rulesGrid");
-  const failureGrid = document.getElementById("failureGrid");
-  const filter = document.getElementById("sceneFilter");
-  const exportButton = document.getElementById("exportReport");
+  var API_BASE = window.location.protocol === "file:" ? "http://localhost:8000" : "";
+  var state = { providers: [], files: [], report: null, objectUrls: [] };
 
-  let currentSceneId = scenes[0]?.id;
+  var elements = {
+    serviceState: document.getElementById("serviceState"),
+    provider: document.getElementById("providerSelect"),
+    prompt: document.getElementById("promptSelect"),
+    apiKey: document.getElementById("apiKeyInput"),
+    apiKeyHint: document.getElementById("apiKeyHint"),
+    baseUrl: document.getElementById("baseUrlInput"),
+    model: document.getElementById("modelInput"),
+    temperature: document.getElementById("temperatureInput"),
+    temperatureValue: document.getElementById("temperatureValue"),
+    headers: document.getElementById("headersInput"),
+    body: document.getElementById("bodyInput"),
+    fileInput: document.getElementById("fileInput"),
+    uploadZone: document.getElementById("uploadZone"),
+    previewGrid: document.getElementById("previewGrid"),
+    clearFiles: document.getElementById("clearFilesBtn"),
+    inspect: document.getElementById("inspectBtn"),
+    inspectText: document.getElementById("inspectBtnText"),
+    spinner: document.getElementById("spinner"),
+    error: document.getElementById("formError"),
+    empty: document.getElementById("emptyState"),
+    result: document.getElementById("reportResult"),
+    meta: document.getElementById("resultMeta"),
+    markdown: document.getElementById("markdownBody"),
+    actions: document.getElementById("reportActions"),
+    rulesDialog: document.getElementById("rulesDialog"),
+    ruleList: document.getElementById("ruleList")
+  };
 
-  function riskTypes(risks) {
-    return new Set((risks || []).map((risk) => risk.type));
-  }
-
-  function compare(scene) {
-    const truth = scene.ground_truth || [];
-    const predicted = modelResults[scene.id]?.risks || [];
-    const truthSet = riskTypes(truth);
-    const predictedSet = riskTypes(predicted);
-    const missed = truth.filter((risk) => !predictedSet.has(risk.type));
-    const falsePositive = predicted.filter((risk) => !truthSet.has(risk.type));
-    const matched = predicted.filter((risk) => truthSet.has(risk.type));
-    const levelMismatch = matched.filter((risk) => {
-      const expected = truth.find((item) => item.type === risk.type);
-      return expected && expected.level !== risk.level;
-    });
-
-    let status = "correct";
-    if (missed.length || falsePositive.length) status = "failure";
-    else if (levelMismatch.length) status = "partial";
-
-    return { truth, predicted, missed, falsePositive, matched, levelMismatch, status };
-  }
-
-  function statusBadge(status) {
-    if (status === "correct") return '<span class="badge ok">识别正确</span>';
-    if (status === "partial") return '<span class="badge partial">部分正确</span>';
-    return '<span class="badge risk">失败案例</span>';
-  }
-
-  function riskBadge(scene) {
-    return (scene.ground_truth || []).length
-      ? '<span class="badge risk">人工标注: 有风险</span>'
-      : '<span class="badge ok">人工标注: 正常</span>';
-  }
-
-  function filteredScenes() {
-    const value = filter.value;
-    return scenes.filter((scene) => {
-      const itemCompare = compare(scene);
-      const hasTruthRisk = (scene.ground_truth || []).length > 0;
-      if (value === "all") return true;
-      if (value === "risk") return hasTruthRisk;
-      if (value === "normal") return !hasTruthRisk;
-      if (value === "failure") return itemCompare.status === "failure" || itemCompare.status === "partial";
-      return scene.scene_type === value;
+  function requestJson(path) {
+    return fetch(API_BASE + path).then(function (response) {
+      if (!response.ok) throw new Error("服务响应异常（" + response.status + "）");
+      return response.json();
     });
   }
 
-  function renderSummary() {
-    const comparisons = scenes.map(compare);
-    const totalRisk = scenes.filter((scene) => scene.ground_truth.length > 0).length;
-    const correct = comparisons.filter((item) => item.status === "correct").length;
-    const partial = comparisons.filter((item) => item.status === "partial").length;
-    const failure = comparisons.filter((item) => item.status === "failure").length;
-    const stats = [
-      ["样本总数", scenes.length],
-      ["风险样本", totalRisk],
-      ["风险类别", rules.length],
-      ["识别正确", correct],
-      ["需分析案例", partial + failure],
-    ];
-    summaryGrid.innerHTML = stats
-      .map(([label, value]) => `<article class="stat-card"><span>${label}</span><strong>${value}</strong></article>`)
-      .join("");
+  function setServiceState(ok, text) {
+    elements.serviceState.classList.toggle("online", ok);
+    elements.serviceState.classList.toggle("offline", !ok);
+    elements.serviceState.lastChild.nodeValue = text;
   }
 
-  function renderSceneList() {
-    const items = filteredScenes();
-    if (!items.some((scene) => scene.id === currentSceneId)) {
-      currentSceneId = items[0]?.id || scenes[0]?.id;
-    }
+  function option(value, label) {
+    var item = document.createElement("option");
+    item.value = value;
+    item.textContent = label;
+    return item;
+  }
 
-    sceneList.innerHTML = items
-      .map((scene) => {
-        const itemCompare = compare(scene);
-        const active = scene.id === currentSceneId ? " active" : "";
-        const riskNames = scene.ground_truth.map((risk) => risk.type).join("、") || "无";
-        return `
-          <button class="scene-card${active}" type="button" data-id="${scene.id}">
-            <span class="scene-card-title">
-              <span>${scene.id} ${scene.title}</span>
-              <span class="badge info">${scene.scene_type}</span>
-            </span>
-            <span class="scene-meta">${scene.summary}</span>
-            <span class="badge-row">
-              ${riskBadge(scene)}
-              ${statusBadge(itemCompare.status)}
-              <span class="badge">风险: ${riskNames}</span>
-            </span>
-          </button>
-        `;
+  function loadConfiguration() {
+    Promise.all([requestJson("/api/providers"), requestJson("/api/prompts"), requestJson("/api/risk_rules")])
+      .then(function (responses) {
+        var providerData = responses[0];
+        state.providers = providerData.providers || [];
+        elements.provider.replaceChildren();
+        state.providers.forEach(function (provider) {
+          elements.provider.appendChild(option(provider.name, provider.label || provider.name));
+        });
+        elements.prompt.replaceChildren();
+        (responses[1].prompts || []).forEach(function (prompt) {
+          elements.prompt.appendChild(option(prompt.id, prompt.id));
+        });
+        elements.provider.value = providerData.active || (state.providers[0] && state.providers[0].name) || "";
+        syncProviderFields();
+        renderRules(responses[2].rules || []);
+        setServiceState(true, "API 服务已连接");
       })
-      .join("");
-
-    sceneList.querySelectorAll(".scene-card").forEach((button) => {
-      button.addEventListener("click", () => {
-        currentSceneId = button.dataset.id;
-        render();
+      .catch(function (error) {
+        setServiceState(false, "API 服务未连接");
+        showError(error.message + "，请先运行 py -m src.server");
       });
+  }
+
+  function syncProviderFields() {
+    var selected = state.providers.find(function (item) { return item.name === elements.provider.value; });
+    if (!selected) return;
+    elements.baseUrl.value = selected.base_url || "";
+    elements.model.value = selected.model || "";
+    if (selected.api_key_optional) {
+      elements.apiKey.placeholder = "该服务无需 API Key";
+      elements.apiKeyHint.textContent = "本地服务可留空";
+    } else {
+      elements.apiKey.placeholder = selected.has_env_key ? "已检测到环境变量，可留空" : "输入本次请求使用的 API Key";
+      elements.apiKeyHint.textContent = (selected.api_key_env ? "环境变量：" + selected.api_key_env + "；" : "") + "不会保存到浏览器或服务器";
+    }
+    updateInspectState();
+  }
+
+  function addFiles(fileList) {
+    var incoming = Array.from(fileList || []);
+    incoming.forEach(function (file) {
+      var duplicate = state.files.some(function (existing) {
+        return existing.name === file.name && existing.size === file.size && existing.lastModified === file.lastModified;
+      });
+      if (!duplicate) state.files.push(file);
+    });
+    renderPreviews();
+  }
+
+  function clearFiles() {
+    state.files = [];
+    elements.fileInput.value = "";
+    renderPreviews();
+  }
+
+  function removeFile(index) {
+    state.files.splice(index, 1);
+    renderPreviews();
+  }
+
+  function renderPreviews() {
+    state.objectUrls.forEach(URL.revokeObjectURL);
+    state.objectUrls = [];
+    elements.previewGrid.replaceChildren();
+    state.files.forEach(function (file, index) {
+      var url = URL.createObjectURL(file);
+      state.objectUrls.push(url);
+      var item = document.createElement("div");
+      item.className = "preview-item";
+      var image = document.createElement("img");
+      image.src = url;
+      image.alt = file.name;
+      var label = document.createElement("span");
+      label.textContent = String(index + 1);
+      var remove = document.createElement("button");
+      remove.type = "button";
+      remove.setAttribute("aria-label", "移除 " + file.name);
+      remove.textContent = "×";
+      remove.addEventListener("click", function () { removeFile(index); });
+      item.append(image, label, remove);
+      elements.previewGrid.appendChild(item);
+    });
+    elements.previewGrid.hidden = state.files.length === 0;
+    elements.clearFiles.hidden = state.files.length === 0;
+    elements.uploadZone.querySelector("strong").textContent = state.files.length ? "继续添加图片" : "添加图片";
+    updateInspectState();
+  }
+
+  function updateInspectState() {
+    elements.inspect.disabled = !state.files.length || !elements.provider.value || !elements.model.value.trim() || !elements.baseUrl.value.trim();
+  }
+
+  function showError(message) {
+    elements.error.textContent = message;
+    elements.error.hidden = !message;
+  }
+
+  function setLoading(loading) {
+    elements.inspect.disabled = loading || !state.files.length;
+    elements.inspectText.textContent = loading ? "模型分析中" : "开始巡检";
+    elements.spinner.hidden = !loading;
+  }
+
+  function readError(response) {
+    return response.json().then(function (data) { return data.detail || "请求失败"; }).catch(function () { return "请求失败"; });
+  }
+
+  function inspect() {
+    showError("");
+    var form = new FormData();
+    state.files.forEach(function (file) { form.append("files", file, file.name); });
+    form.append("provider_name", elements.provider.value);
+    form.append("prompt_id", elements.prompt.value);
+    form.append("api_key", elements.apiKey.value);
+    form.append("base_url", elements.baseUrl.value.trim());
+    form.append("model", elements.model.value.trim());
+    form.append("temperature", elements.temperature.value);
+    form.append("extra_headers", elements.headers.value.trim());
+    form.append("extra_body", elements.body.value.trim());
+    setLoading(true);
+    fetch(API_BASE + "/api/inspect", { method: "POST", body: form })
+      .then(function (response) {
+        if (!response.ok) return readError(response).then(function (message) { throw new Error(message); });
+        return response.json();
+      })
+      .then(renderResult)
+      .catch(function (error) { showError(error.message); })
+      .finally(function () { setLoading(false); updateInspectState(); });
+  }
+
+  function badge(text, className) {
+    var item = document.createElement("span");
+    item.className = "meta-badge " + className;
+    item.textContent = text;
+    return item;
+  }
+
+  function renderResult(payload) {
+    state.report = payload.report;
+    var inspection = payload.inspection || {};
+    var data = inspection.data || {};
+    elements.meta.replaceChildren();
+    elements.meta.appendChild(badge(inspection.success ? "调用成功" : "调用失败", inspection.success ? "ok" : "danger"));
+    if (inspection.success) {
+      elements.meta.appendChild(badge(data.has_risk ? "发现风险 " + (data.risks || []).length + " 项" : "未发现风险", data.has_risk ? "warning" : "ok"));
+      elements.meta.appendChild(badge(inspection.valid ? "格式通过" : "格式异常", inspection.valid ? "neutral" : "warning"));
+    }
+    elements.meta.appendChild(badge(inspection.model || inspection.provider, "neutral"));
+    elements.markdown.innerHTML = payload.report.html;
+    elements.empty.hidden = true;
+    elements.result.hidden = false;
+    elements.actions.hidden = false;
+    elements.result.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function exportReport(format) {
+    if (!state.report) return;
+    var form = new FormData();
+    form.append("content", state.report.markdown);
+    form.append("format", format);
+    form.append("filename", state.report.filename);
+    fetch(API_BASE + "/api/reports/export", { method: "POST", body: form })
+      .then(function (response) {
+        if (!response.ok) return readError(response).then(function (message) { throw new Error(message); });
+        return response.blob();
+      })
+      .then(function (blob) {
+        var url = URL.createObjectURL(blob);
+        var anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = state.report.filename + "." + format;
+        anchor.click();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      })
+      .catch(function (error) { showError(error.message); });
+  }
+
+  function renderRules(rules) {
+    elements.ruleList.replaceChildren();
+    rules.forEach(function (rule) {
+      var article = document.createElement("article");
+      var title = document.createElement("h3");
+      title.textContent = rule.risk_name;
+      var id = document.createElement("code");
+      id.textContent = rule.rule_id;
+      var description = document.createElement("p");
+      description.textContent = rule.description;
+      var conditions = document.createElement("ul");
+      (rule.trigger_conditions || []).forEach(function (condition) {
+        var item = document.createElement("li");
+        item.textContent = condition;
+        conditions.appendChild(item);
+      });
+      article.append(title, id, description, conditions);
+      elements.ruleList.appendChild(article);
     });
   }
 
-  function renderRiskList(title, risks) {
-    if (!risks || risks.length === 0) {
-      return `
-        <div class="result-box">
-          <h3>${title}</h3>
-          <p class="empty-state">未发现风险。</p>
-        </div>
-      `;
-    }
-    return `
-      <div class="result-box">
-        <h3>${title}</h3>
-        ${risks
-          .map(
-            (risk) => `
-              <article class="risk-item">
-                <div class="badge-row">
-                  <span class="badge risk">${risk.type}</span>
-                  <span class="badge info">${risk.level}风险</span>
-                </div>
-                <p><strong>相关物体：</strong>${(risk.objects || []).join("、")}</p>
-                <p><strong>位置：</strong>${risk.location}</p>
-                <p><strong>依据：</strong>${risk.reason}</p>
-                <p><strong>建议：</strong>${risk.suggestion}</p>
-              </article>
-            `
-          )
-          .join("")}
-      </div>
-    `;
-  }
+  elements.uploadZone.addEventListener("click", function () { elements.fileInput.click(); });
+  elements.fileInput.addEventListener("change", function () { addFiles(elements.fileInput.files); });
+  elements.clearFiles.addEventListener("click", clearFiles);
+  ["dragenter", "dragover"].forEach(function (eventName) {
+    elements.uploadZone.addEventListener(eventName, function (event) { event.preventDefault(); elements.uploadZone.classList.add("dragging"); });
+  });
+  ["dragleave", "drop"].forEach(function (eventName) {
+    elements.uploadZone.addEventListener(eventName, function (event) { event.preventDefault(); elements.uploadZone.classList.remove("dragging"); });
+  });
+  elements.uploadZone.addEventListener("drop", function (event) { addFiles(event.dataTransfer.files); });
+  elements.provider.addEventListener("change", syncProviderFields);
+  [elements.baseUrl, elements.model].forEach(function (input) { input.addEventListener("input", updateInspectState); });
+  elements.temperature.addEventListener("input", function () { elements.temperatureValue.textContent = elements.temperature.value; });
+  elements.inspect.addEventListener("click", inspect);
+  document.querySelectorAll("[data-export]").forEach(function (button) {
+    button.addEventListener("click", function () { exportReport(button.dataset.export); });
+  });
+  document.getElementById("rulesBtn").addEventListener("click", function () { elements.rulesDialog.showModal(); });
+  document.getElementById("closeRulesBtn").addEventListener("click", function () { elements.rulesDialog.close(); });
+  elements.rulesDialog.addEventListener("click", function (event) { if (event.target === elements.rulesDialog) elements.rulesDialog.close(); });
 
-  function renderDetail() {
-    const scene = scenes.find((item) => item.id === currentSceneId) || scenes[0];
-    if (!scene) {
-      detailPanel.innerHTML = '<p class="empty-state">没有可展示的样本。</p>';
-      return;
-    }
-
-    const itemCompare = compare(scene);
-    const result = modelResults[scene.id] || { has_risk: false, risks: [] };
-    const issues = [];
-    if (itemCompare.missed.length) issues.push(`漏检：${itemCompare.missed.map((risk) => risk.type).join("、")}`);
-    if (itemCompare.falsePositive.length) issues.push(`误检：${itemCompare.falsePositive.map((risk) => risk.type).join("、")}`);
-    if (itemCompare.levelMismatch.length) issues.push(`等级不一致：${itemCompare.levelMismatch.map((risk) => risk.type).join("、")}`);
-    if (!issues.length) issues.push("人工标注与模型输出一致。");
-
-    detailPanel.innerHTML = `
-      <div class="detail-hero">
-        <div class="scene-image-wrap">
-          <img src="${scene.image}" alt="${scene.title}" />
-        </div>
-        <div class="detail-copy">
-          <div class="badge-row">
-            <span class="badge info">${scene.scene_type}</span>
-            ${riskBadge(scene)}
-            ${statusBadge(itemCompare.status)}
-          </div>
-          <div>
-            <h2>${scene.id} ${scene.title}</h2>
-            <p>${scene.summary}</p>
-          </div>
-          <div>
-            <h3>场景物体</h3>
-            <div class="objects-list">${scene.objects.map((item) => `<span class="badge">${item}</span>`).join("")}</div>
-          </div>
-          <div>
-            <h3>模拟 VLM JSON</h3>
-            <pre class="report-pre">${escapeHtml(JSON.stringify(result, null, 2))}</pre>
-          </div>
-        </div>
-      </div>
-      <div class="result-grid">
-        ${renderRiskList("人工标注", itemCompare.truth)}
-        ${renderRiskList("模拟 VLM 输出", itemCompare.predicted)}
-      </div>
-      <div class="compare-box">
-        <h3>对比结论</h3>
-        <ul class="compare-list">
-          ${issues.map((issue) => `<li>${issue}</li>`).join("")}
-          ${result.note ? `<li>${result.note}</li>` : ""}
-        </ul>
-      </div>
-    `;
-  }
-
-  function renderRules() {
-    rulesGrid.innerHTML = rules
-      .map(
-        (rule) => `
-          <article class="rule-card">
-            <h3>${rule.name}</h3>
-            <p>${rule.rule}</p>
-            <p><strong>等级提示：</strong>${rule.level_hint}</p>
-          </article>
-        `
-      )
-      .join("");
-  }
-
-  function renderFailures() {
-    const failures = scenes
-      .map((scene) => ({ scene, itemCompare: compare(scene), result: modelResults[scene.id] || {} }))
-      .filter((item) => item.itemCompare.status !== "correct" || item.result.note);
-
-    failureGrid.innerHTML = failures
-      .map(({ scene, itemCompare, result }) => {
-        const reasons = [];
-        if (itemCompare.missed.length) reasons.push(`漏检 ${itemCompare.missed.map((risk) => risk.type).join("、")}`);
-        if (itemCompare.falsePositive.length) reasons.push(`误检 ${itemCompare.falsePositive.map((risk) => risk.type).join("、")}`);
-        if (itemCompare.levelMismatch.length) reasons.push(`等级低估或高估 ${itemCompare.levelMismatch.map((risk) => risk.type).join("、")}`);
-        if (result.note) reasons.push(result.note);
-        return `
-          <article class="failure-card">
-            <div class="badge-row">
-              <span class="badge info">${scene.id}</span>
-              ${statusBadge(itemCompare.status)}
-            </div>
-            <h3>${scene.title}</h3>
-            <p>${reasons.join("；")}</p>
-            <p><strong>改进方向：</strong>补充视角、细化距离规则，或在 Prompt 中要求模型说明证据是否充分。</p>
-          </article>
-        `;
-      })
-      .join("");
-  }
-
-  function exportReport() {
-    const scene = scenes.find((item) => item.id === currentSceneId);
-    const report = {
-      scene,
-      model_result: modelResults[currentSceneId],
-      comparison: compare(scene),
-    };
-    const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${currentSceneId}_inspection_report.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-  }
-
-  function escapeHtml(value) {
-    return String(value)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;");
-  }
-
-  function render() {
-    renderSummary();
-    renderSceneList();
-    renderDetail();
-    renderRules();
-    renderFailures();
-  }
-
-  filter.addEventListener("change", render);
-  exportButton.addEventListener("click", exportReport);
-  render();
+  loadConfiguration();
 })();

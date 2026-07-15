@@ -3,67 +3,130 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>AI 视觉室内巡检 Demo</title>
+    <title>AI 视觉室内巡检</title>
+    <link rel="icon" href="data:," />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main class="app-shell">
-      <header class="topbar">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">AI</span>
         <div>
-          <p class="eyebrow">本科课程小型闭环 Demo</p>
-          <h1>AI 视觉室内巡检</h1>
+          <h1>视觉室内巡检</h1>
+          <p>单次多模态安全分析</p>
         </div>
-        <div class="top-actions">
-          <a href="inspect.html" class="ghost-btn" style="text-decoration:none; display:inline-flex; align-items:center;">实时巡检</a>
-          <a href="batch.html" class="ghost-btn" style="text-decoration:none; display:inline-flex; align-items:center;">批量评测</a>
-          <a href="compare.html" class="ghost-btn" style="text-decoration:none; display:inline-flex; align-items:center;">Prompt对比</a>
-          <a href="annotate.html" class="ghost-btn" style="text-decoration:none; display:inline-flex; align-items:center;">样本标注</a>
-          <button id="exportReport" class="primary-btn" type="button">导出当前报告</button>
-        </div>
-      </header>
+      </div>
+      <div class="service-state" id="serviceState"><span></span>连接服务中</div>
+    </header>
 
-      <section class="summary-grid" id="summaryGrid" aria-label="项目统计"></section>
-
-      <section class="workspace">
-        <aside class="scene-panel">
-          <div class="panel-head">
-            <h2>巡检样本</h2>
-            <select id="sceneFilter" aria-label="筛选样本">
-              <option value="all">全部样本</option>
-              <option value="risk">仅风险场景</option>
-              <option value="normal">仅正常场景</option>
-              <option value="failure">仅失败案例</option>
-              <option value="宿舍">宿舍</option>
-              <option value="厨房">厨房</option>
-              <option value="客厅">客厅</option>
-              <option value="实验室">实验室</option>
-              <option value="走廊">走廊</option>
-            </select>
+    <main class="workspace">
+      <form class="control-panel" aria-label="巡检配置" onsubmit="return false">
+        <div class="panel-title">
+          <div>
+            <span class="step">01</span>
+            <h2>巡检输入</h2>
           </div>
-          <div id="sceneList" class="scene-list"></div>
-        </aside>
-
-        <section class="detail-panel" id="detailPanel" aria-live="polite"></section>
-      </section>
-
-      <section class="rules-section">
-        <div class="section-head">
-          <h2>风险规则库</h2>
-          <p>模型输出必须引用这些规则，便于解释和评测。</p>
+          <button class="text-btn" id="rulesBtn" type="button">查看规则</button>
         </div>
-        <div class="rules-grid" id="rulesGrid"></div>
-      </section>
 
-      <section class="failure-section">
-        <div class="section-head">
-          <h2>失败案例分析</h2>
-          <p>课程要求保留模型错误，用于说明 VLM 的能力边界。</p>
+        <div class="field">
+          <label for="fileInput">场景图片</label>
+          <button class="upload-zone" id="uploadZone" type="button">
+            <span class="upload-symbol" aria-hidden="true">+</span>
+            <strong>添加图片</strong>
+            <small>JPG、PNG、WebP、BMP 或 GIF，单张不超过 20MB</small>
+          </button>
+          <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp,image/bmp,image/gif" multiple hidden />
+          <div class="preview-grid" id="previewGrid" hidden></div>
+          <button class="text-btn clear-files" id="clearFilesBtn" type="button" hidden>移除全部图片</button>
         </div>
-        <div class="failure-grid" id="failureGrid"></div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="providerSelect">模型服务</label>
+            <select id="providerSelect"></select>
+          </div>
+          <div class="field">
+            <label for="promptSelect">Prompt</label>
+            <select id="promptSelect"></select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="apiKeyInput">API Key</label>
+          <input id="apiKeyInput" type="password" autocomplete="off" placeholder="使用环境变量或临时输入" />
+          <small id="apiKeyHint">密钥仅随本次请求发送</small>
+        </div>
+
+        <div class="field">
+          <label for="baseUrlInput">Base URL</label>
+          <input id="baseUrlInput" type="url" spellcheck="false" placeholder="https://example.com/v1" />
+        </div>
+
+        <div class="field">
+          <label for="modelInput">模型名称或接入点 ID</label>
+          <input id="modelInput" type="text" spellcheck="false" placeholder="vision-model-name" />
+        </div>
+
+        <details class="advanced">
+          <summary>高级请求参数</summary>
+          <div class="field">
+            <label for="temperatureInput">Temperature <output id="temperatureValue">0.1</output></label>
+            <input id="temperatureInput" type="range" min="0" max="2" step="0.1" value="0.1" />
+          </div>
+          <div class="field">
+            <label for="headersInput">额外请求头（JSON）</label>
+            <textarea id="headersInput" rows="3" spellcheck="false" placeholder='{"X-Custom-Header":"value"}'></textarea>
+          </div>
+          <div class="field">
+            <label for="bodyInput">额外请求参数（JSON）</label>
+            <textarea id="bodyInput" rows="3" spellcheck="false" placeholder='{"max_tokens":2048}'></textarea>
+          </div>
+        </details>
+
+        <button class="primary-btn" id="inspectBtn" type="button" disabled>
+          <span id="inspectBtnText">开始巡检</span>
+          <span class="spinner" id="spinner" hidden></span>
+        </button>
+        <p class="form-error" id="formError" role="alert" hidden></p>
+      </form>
+
+      <section class="report-panel" aria-live="polite">
+        <div class="report-toolbar">
+          <div>
+            <span class="step">02</span>
+            <h2>巡检报告</h2>
+          </div>
+          <div class="report-actions" id="reportActions" hidden>
+            <button class="secondary-btn" data-export="md" type="button">导出 MD</button>
+            <button class="primary-btn compact" data-export="pdf" type="button">导出 PDF</button>
+          </div>
+        </div>
+
+        <div class="empty-state" id="emptyState">
+          <div class="empty-graphic" aria-hidden="true"><span></span><span></span><span></span></div>
+          <h3>等待巡检结果</h3>
+          <p>报告将在模型完成分析后显示</p>
+        </div>
+
+        <div class="report-result" id="reportResult" hidden>
+          <div class="result-meta" id="resultMeta"></div>
+          <article class="markdown-body" id="markdownBody"></article>
+        </div>
       </section>
     </main>
 
-    <script src="data.js"></script>
+    <dialog id="rulesDialog" class="rules-dialog">
+      <div class="dialog-head">
+        <div>
+          <span class="step">规则库</span>
+          <h2>室内安全判定规则</h2>
+        </div>
+        <button class="close-btn" id="closeRulesBtn" type="button" aria-label="关闭">×</button>
+      </div>
+      <div class="rule-list" id="ruleList"></div>
+    </dialog>
+
     <script src="app.js"></script>
   </body>
 </html>

@@ -1,4 +1,4 @@
-"""Provider 工厂：根据配置创建 provider 实例。"""
+"""Provider 配置加载与实例工厂。"""
 
 from __future__ import annotations
 
@@ -7,84 +7,59 @@ import os
 from pathlib import Path
 from typing import Any
 
-from .base import VLMProvider, ProviderError
-from .mock_provider import MockProvider
-from .qwen_provider import QwenProvider
+from .base import ProviderError, VLMProvider
+from .openai_compatible import OpenAICompatibleProvider
+
+
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def _find_config() -> Path | None:
-    """查找 provider 配置文件。"""
-    root = Path(__file__).resolve().parents[2]
-    candidates = [
-        root / "configs" / "providers.json",
-        root / "configs" / "providers.example.json",
-    ]
-    for p in candidates:
-        if p.exists():
-            return p
+    for path in (ROOT / "configs" / "providers.json", ROOT / "configs" / "providers.example.json"):
+        if path.exists():
+            return path
     return None
 
 
 def load_config() -> dict[str, Any]:
-    """加载 provider 配置。"""
     path = _find_config()
-    if path is None:
-        return {"active_provider": "mock", "providers": {}}
-    return json.loads(path.read_text(encoding="utf-8"))
+    return json.loads(path.read_text(encoding="utf-8")) if path else {"active_provider": "qwen", "providers": {}}
 
 
 def get_provider(
     name: str | None = None,
     config: dict[str, Any] | None = None,
     api_key: str | None = None,
+    overrides: dict[str, Any] | None = None,
 ) -> VLMProvider:
-    """根据名称创建 provider 实例。
-
-    Args:
-        name: provider 名称。为 None 时使用配置中的 active_provider。
-        config: 自定义配置。为 None 时从 configs/providers.json 加载。
-        api_key: 可选的 API Key，运行时传入，不从环境变量读取。
-
-    Returns:
-        VLMProvider 实例。
-    """
-    if config is None:
-        config = load_config()
-
+    config = config or load_config()
+    name = name or config.get("active_provider")
     providers = config.get("providers", {})
-    if name is None:
-        name = config.get("active_provider", "mock")
-
     if name not in providers:
-        raise ProviderError(f"未找到 provider: {name}，可用: {list(providers.keys())}")
-
-    provider_config = providers[name]
-    provider_type = provider_config.get("type", "mock")
-
-    if provider_type == "mock":
-        return MockProvider(provider_config)
-    elif provider_type in ("openai_compatible", "qwen", "openai", "ollama"):
-        provider = QwenProvider(provider_config)
-        if api_key:
-            provider.set_api_key(api_key)
-        return provider
-    else:
-        raise ProviderError(f"不支持的 provider 类型: {provider_type}")
+        raise ProviderError(f"未找到 provider: {name}")
+    provider_config = {**providers[name], **(overrides or {})}
+    if provider_config.get("type", "openai_compatible") != "openai_compatible":
+        raise ProviderError(f"不支持的 provider 类型: {provider_config.get('type')}")
+    provider = OpenAICompatibleProvider(provider_config)
+    if api_key:
+        provider.set_api_key(api_key)
+    return provider
 
 
 def list_providers(config: dict[str, Any] | None = None) -> list[dict[str, Any]]:
-    """列出所有可用 provider 的信息。"""
-    if config is None:
-        config = load_config()
-    providers = config.get("providers", {})
+    config = config or load_config()
     result = []
-    for name, cfg in providers.items():
+    for name, cfg in config.get("providers", {}).items():
+        key_env = cfg.get("api_key_env", "")
         result.append({
             "name": name,
-            "type": cfg.get("type", ""),
+            "label": cfg.get("label", name),
+            "type": cfg.get("type", "openai_compatible"),
+            "base_url": cfg.get("base_url", ""),
             "model": cfg.get("model", ""),
             "description": cfg.get("description", ""),
-            "api_key_env": cfg.get("api_key_env", ""),
-            "has_env_key": bool(os.getenv(cfg.get("api_key_env", ""), "")) if cfg.get("api_key_env") else True,
+            "api_key_env": key_env,
+            "has_env_key": bool(os.getenv(key_env)) if key_env else bool(cfg.get("api_key_optional")),
+            "api_key_optional": bool(cfg.get("api_key_optional")),
         })
     return result

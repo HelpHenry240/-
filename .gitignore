@@ -1,50 +1,29 @@
-# 环境变量与密钥
+# 密钥与本地配置
 .env
 .env.local
 .env.*.local
+configs/providers.json
 
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
-*.so
-.Python
+.venv/
 venv/
 env/
-.venv/
 *.egg-info/
-dist/
-build/
+.pytest_cache/
 
-# 输出文件（保留目录结构，不提交具体结果）
-outputs/vlm_results/*.json
-outputs/vlm_results/**/*.json
-outputs/reports/*.html
-outputs/reports/**/*.html
-outputs/evaluations/*.json
-outputs/evaluations/**/*.json
-
-# 数据集（大文件不提交）
+# 用户数据
 datasets/custom/*
 !datasets/custom/.gitkeep
-datasets/homesafe_like/*
-!datasets/homesafe_like/.gitkeep
-datasets/behavior_like/*
-!datasets/behavior_like/.gitkeep
-datasets/esi_like/*
-!datasets/esi_like/.gitkeep
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Local agent/workbench metadata
+# 本地工具元数据
 .agents/
 .codex/
 .uploads/
+.vscode/
+.idea/
 
-# OS
+# 系统文件
 .DS_Store
 Thumbs.db

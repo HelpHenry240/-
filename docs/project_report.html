@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI 视觉室内巡检项目汇报</title>
+  <style>
+    :root {
+      --bg: #eef3f8;
+      --paper: #ffffff;
+      --ink: #142033;
+      --muted: #5f7089;
+      --line: #c8d5e6;
+      --teal: #087c73;
+      --teal-2: #e8f6f3;
+      --red: #c8222c;
+      --amber: #a96800;
+      --green: #1e7b48;
+      --blue: #245b9f;
+      --shadow: 0 18px 42px rgba(29, 45, 68, 0.11);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      line-height: 1.65;
+    }
+
+    a {
+      color: var(--teal);
+      text-decoration: none;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 30px 22px 64px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+      gap: 28px;
+      align-items: stretch;
+      min-height: 540px;
+    }
+
+    .hero-main {
+      padding: 46px 0 30px;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--teal);
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 52px;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 720px;
+      margin: 22px 0 0;
+      color: #33445f;
+      font-size: 19px;
+    }
+
+    .hero-visual {
+      align-self: center;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #d9e4ef;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-visual img {
+      width: 100%;
+      height: 100%;
+      min-height: 430px;
+      object-fit: cover;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 34px;
+    }
+
+    .stat {
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1.1;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 30px 0;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav a {
+      padding: 8px 12px;
+      border-radius: 6px;
+      color: #27405f;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .nav a:hover {
+      background: var(--teal-2);
+      color: var(--teal);
+    }
+
+    section {
+      margin: 18px 0;
+      padding: 34px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: 0 8px 22px rgba(29, 45, 68, 0.06);
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 30px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 0 0 12px;
+      font-size: 20px;
+      line-height: 1.25;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .feature {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdff;
+    }
+
+    .feature b {
+      display: block;
+      margin-bottom: 8px;
+      color: #0e5260;
+      font-size: 17px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .step {
+      min-height: 118px;
+      padding: 14px;
+      border: 1px solid #b9cbe0;
+      border-radius: 8px;
+      background: #f5f8fc;
+    }
+
+    .step small {
+      display: block;
+      color: var(--teal);
+      font-weight: 800;
+    }
+
+    .step b {
+      display: block;
+      margin: 6px 0;
+      font-size: 16px;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .shot {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f7fafc;
+    }
+
+    .shot img {
+      width: 100%;
+      object-fit: cover;
+    }
+
+    .shot figcaption {
+      padding: 10px 12px;
+      color: var(--muted);
+      font-size: 14px;
+      border-top: 1px solid var(--line);
+    }
+
+    figure {
+      margin: 0;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .gallery figure {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f7fafc;
+    }
+
+    .gallery img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+    }
+
+    .gallery figcaption {
+      padding: 8px 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      vertical-align: top;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+    }
+
+    th {
+      background: #f2f6fb;
+      color: #29425f;
+      font-weight: 800;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      margin: 0 6px 6px 0;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: #eef4fb;
+      color: #24476d;
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .tag.red {
+      background: #ffe8e9;
+      color: var(--red);
+    }
+
+    .tag.amber {
+      background: #fff2d8;
+      color: var(--amber);
+    }
+
+    .tag.green {
+      background: #dcf8e9;
+      color: var(--green);
+    }
+
+    .tag.blue {
+      background: #e6f0ff;
+      color: var(--blue);
+    }
+
+    pre {
+      overflow: auto;
+      margin: 16px 0 0;
+      padding: 18px;
+      border-radius: 8px;
+      background: #101827;
+      color: #e6edf7;
+      font-size: 14px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .callout {
+      margin-top: 16px;
+      padding: 16px 18px;
+      border-left: 4px solid var(--teal);
+      border-radius: 6px;
+      background: var(--teal-2);
+      color: #234056;
+    }
+
+    .list {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .list li {
+      margin: 6px 0;
+    }
+
+    .footer {
+      margin-top: 24px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 14px;
+    }
+
+    @media (max-width: 920px) {
+      .hero,
+      .grid-2,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .summary,
+      .flow,
+      .gallery {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      h1 {
+        font-size: 40px;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .page {
+        padding: 18px 12px 44px;
+      }
+
+      section {
+        padding: 22px 16px;
+      }
+
+      .summary,
+      .flow,
+      .gallery {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      .page {
+        max-width: none;
+        padding: 0;
+      }
+
+      .nav {
+        display: none;
+      }
+
+      section,
+      .hero-visual,
+      .stat {
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="hero-main">
+        <p class="eyebrow">课程项目汇报</p>
+        <h1>AI 视觉室内巡检系统</h1>
+        <p class="lead">
+          本项目围绕“基于 AI 视觉的虚拟室内巡检实践”构建了一个小型但完整的安全巡检闭环：
+          从室内图像输入、风险规则约束、VLM 识别，到结构化 JSON 输出、可视化标注、结果留存和失败分析。
+        </p>
+        <div class="summary">
+          <div class="stat">
+            <strong>6</strong>
+            <span>类室内风险规则</span>
+          </div>
+          <div class="stat">
+            <strong>12</strong>
+            <span>个可离线演示场景</span>
+          </div>
+          <div class="stat">
+            <strong>3</strong>
+            <span>版 Prompt 可对比</span>
+          </div>
+          <div class="stat">
+            <strong>2</strong>
+            <span>模式：mock 与真实 VLM</span>
+          </div>
+        </div>
+      </div>
+      <figure class="hero-visual">
+        <img src="assets/report/bathroom-result.png" alt="AI 视觉室内巡检浴室风险识别界面">
+      </figure>
+    </header>
+
+    <nav class="nav" aria-label="汇报目录">
+      <a href="#goal">项目目标</a>
+      <a href="#features">主要功能</a>
+      <a href="#principle">实现原理</a>
+      <a href="#cases">识别案例</a>
+      <a href="#structure">工程结构</a>
+      <a href="#summary">总结展望</a>
+    </nav>
+
+    <section id="goal">
+      <h2>一、项目目标与闭环</h2>
+      <p>
+        室内安全隐患往往不是单个物体本身造成的，而是由“物体 + 空间关系 + 使用状态”共同构成。
+        因此本项目重点不只是让模型描述图片，而是让模型按照给定风险规则进行巡检判断，并输出可被程序解析和评测的结构化结果。
+      </p>
+      <div class="flow">
+        <div class="step">
+          <small>Step 01</small>
+          <b>构造场景</b>
+          <span>准备宿舍、厨房、浴室、走廊等室内图像或 SVG 虚拟场景。</span>
+        </div>
+        <div class="step">
+          <small>Step 02</small>
+          <b>定义规则</b>
+          <span>统一维护触电、火灾、绊倒、坠物、危险物暴露、清洁度异常规则。</span>
+        </div>
+        <div class="step">
+          <small>Step 03</small>
+          <b>调用 VLM</b>
+          <span>通过 provider 抽象连接 mock、Qwen 或 OpenAI-compatible 视觉模型。</span>
+        </div>
+        <div class="step">
+          <small>Step 04</small>
+          <b>约束输出</b>
+          <span>要求模型返回固定 JSON，包含风险类型、位置、等级、依据和建议。</span>
+        </div>
+        <div class="step">
+          <small>Step 05</small>
+          <b>展示结果</b>
+          <span>前端把 bbox、风险卡片、原始 JSON 和模型原文可视化呈现。</span>
+        </div>
+        <div class="step">
+          <small>Step 06</small>
+          <b>评测分析</b>
+          <span>对比人工标注与模型输出，统计漏检、误检和等级错误。</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <h2>二、主要功能</h2>
+      <div class="grid-3">
+        <div class="feature">
+          <b>1. 实时图片巡检</b>
+          <p class="muted">支持上传单张图片或同一房间的多视角图片，选择模型 provider 和 Prompt 后立即调用巡检接口。</p>
+        </div>
+        <div class="feature">
+          <b>2. 自助选择模型</b>
+          <p class="muted">前端可选择 mock、qwen、openai、ollama 等 provider。API Key 只用于本次请求，不写入前端代码和仓库。</p>
+        </div>
+        <div class="feature">
+          <b>3. Prompt 版本管理</b>
+          <p class="muted">提供 risk_inspection_v1、v2、v3 等模板，便于比较不同规则细化程度对识别稳定性的影响。</p>
+        </div>
+        <div class="feature">
+          <b>4. 风险规则标准化</b>
+          <p class="muted">风险规则集中放在 configs/risk_rules.json，后续可同时服务 Prompt 生成、前端说明和评测逻辑。</p>
+        </div>
+        <div class="feature">
+          <b>5. 可视化结果展示</b>
+          <p class="muted">模型返回 bbox 后，前端把风险热区叠加在图片上，并展示相关物体、位置、依据和处理建议。</p>
+        </div>
+        <div class="feature">
+          <b>6. 批量运行与对比</b>
+          <p class="muted">后端支持按数据集批量巡检，保存 run 记录，并可比较不同模型、不同 Prompt 的评测结果。</p>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:18px;">
+        <figure class="shot">
+          <img src="assets/report/upload-panel.png" alt="上传图片并选择 provider 的实时巡检界面">
+          <figcaption>实时巡检入口：上传多视角图片，选择 provider、API Key 和 Prompt 模板。</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="assets/report/prompt-preview.png" alt="风险巡检 Prompt 设计预览">
+          <figcaption>Prompt 设计：明确关注区域、风险规则、输出 JSON schema 和约束条件。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="principle">
+      <h2>三、实现原理</h2>
+      <div class="grid-2">
+        <div>
+          <h3>1. 规则驱动的视觉理解</h3>
+          <p>
+            系统不会让模型自由发挥，而是在 Prompt 中写入明确风险规则。例如“液体、积水或潮湿物体靠近插座、电器、电线时，判定为触电风险”。
+            这样模型判断的是空间关系，而不是简单看到“插座”或“电器”就报警。
+          </p>
+          <p>
+            每条风险必须说明相关物体、位置、风险等级、依据和整改建议，使结果可以被人工复核，也可以进入自动评测。
+          </p>
+        </div>
+        <div>
+          <h3>2. Provider 抽象</h3>
+          <p>
+            后端通过统一接口封装不同视觉模型，页面只关心 provider 名称和 prompt_id。
+            mock provider 保证无网络、无 Key 时也能完成课堂演示；qwen provider 则用于真实图片巡检。
+          </p>
+          <pre><code>class VLMProvider:
+    name: str
+
+    def inspect(self, images, prompt, options) -> dict:
+        ...</code></pre>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:18px;">
+        <div>
+          <h3>3. 结构化输出与校验</h3>
+          <p>
+            模型输出会经过 JSON 解析和 schema 校验。即使模型返回 Markdown 代码块，后端也会提取 JSON；如果格式不合格，会保留原文和错误信息，便于定位问题。
+          </p>
+          <pre><code>{
+  "has_risk": true,
+  "risks": [
+    {
+      "type": "触电风险",
+      "objects": ["吹风机", "插座", "水"],
+      "location": "洗手台台面上",
+      "level": "高",
+      "reason": "水源与带电设备距离过近",
+      "suggestion": "移至远离水源和插座的位置"
+    }
+  ],
+  "evidence_sufficiency": "充分",
+  "uncertain_points": []
+}</code></pre>
+        </div>
+        <figure class="shot">
+          <img src="assets/report/raw-json.png" alt="模型原文 JSON 输出界面">
+          <figcaption>结果页保留原始 JSON 与模型原文，便于解释、复查和调试输出格式。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="cases">
+      <h2>四、识别案例展示</h2>
+      <h3>案例 A：厨房多视角巡检</h3>
+      <p>
+        该案例一次上传 3 张同一厨房的不同视角图片。多视角输入能补充单张图片的遮挡和距离信息，
+        模型最终识别出 3 类隐患，并返回每条风险对应的证据视角。
+      </p>
+      <div class="gallery">
+        <figure>
+          <img src="../datasets/custom/mutiview/ChatGPT Image 2026年7月6日 21_26_49 (1).png" alt="厨房多视角图像 1">
+          <figcaption>视角 1：厨房入口与右侧地面电源线。</figcaption>
+        </figure>
+        <figure>
+          <img src="../datasets/custom/mutiview/ChatGPT Image 2026年7月6日 21_26_49 (2).png" alt="厨房多视角图像 2">
+          <figcaption>视角 2：厨房中央地面污渍。</figcaption>
+        </figure>
+        <figure>
+          <img src="../datasets/custom/mutiview/ChatGPT Image 2026年7月6日 21_26_50 (3).png" alt="厨房多视角图像 3">
+          <figcaption>视角 3：厨房整体与餐桌通行区域。</figcaption>
+        </figure>
+      </div>
+      <figure class="shot">
+        <img src="assets/report/multi-view-result.png" alt="厨房多视角风险热区结果">
+        <figcaption>可视化结果：系统在主视角图片上叠加风险热区，并在下方输出每条风险的依据和建议。</figcaption>
+      </figure>
+      <table>
+        <thead>
+          <tr>
+            <th>风险类型</th>
+            <th>等级</th>
+            <th>位置与证据</th>
+            <th>处理建议</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag red">触电风险</span></td>
+            <td><span class="tag amber">中风险</span></td>
+            <td>厨房右侧地面，电源延长线靠近垃圾桶和橱柜底部；证据来自视角 1、3，并结合视角 2 的潮湿地面。</td>
+            <td>整理并固定电源线，使用线槽隐藏，避免暴露在通行区域。</td>
+          </tr>
+          <tr>
+            <td><span class="tag red">通行/绊倒风险</span></td>
+            <td><span class="tag green">低风险</span></td>
+            <td>餐厅与厨房之间，黑色电线和背包位于主要行走路径上；证据来自视角 1、3。</td>
+            <td>收纳电线，将背包放入储物柜或挂到墙面挂钩。</td>
+          </tr>
+          <tr>
+            <td><span class="tag red">清洁度异常</span></td>
+            <td><span class="tag green">低风险</span></td>
+            <td>厨房中央瓷砖地面有明显圆形污渍；证据来自视角 2、3。</td>
+            <td>立即清洁该区域，保持地面干净整洁。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top:32px;">案例 B：浴室单图巡检</h3>
+      <p>
+        该案例展示单张真实图片巡检。画面中吹风机、电源插座和水槽距离很近，且台面与地面可见潮湿痕迹，
+        模型根据触电风险规则将其判定为高风险。
+      </p>
+      <div class="grid-2">
+        <figure class="shot">
+          <img src="../datasets/custom/3ac012cd-2e72-4fc5-b6c9-3b66d4e8958b.png" alt="浴室吹风机靠近水槽和插座的风险图片">
+          <figcaption>输入图片：吹风机放在洗手台上，靠近水槽、插座和水迹。</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="assets/report/bathroom-result.png" alt="浴室单图触电风险识别结果">
+          <figcaption>输出结果：模型定位 R1 触电风险，并给出高风险等级和整改建议。</figcaption>
+        </figure>
+      </div>
+      <div class="callout">
+        这个案例说明系统的关键判断点是“水源或潮湿区域与带电设备的空间关系”。它比单纯识别物体更接近真实巡检逻辑。
+      </div>
+    </section>
+
+    <section id="structure">
+      <h2>五、工程结构与数据流</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>模块</th>
+            <th>作用</th>
+            <th>对应文件或目录</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>前端演示</td>
+            <td>展示静态 demo、实时巡检、人工标注、批量运行、结果对比。</td>
+            <td><code>demo/index.html</code>, <code>demo/inspect.html</code>, <code>demo/batch.html</code>, <code>demo/compare.html</code></td>
+          </tr>
+          <tr>
+            <td>后端服务</td>
+            <td>提供上传、巡检、provider 列表、Prompt 列表、数据集和 run 记录接口。</td>
+            <td><code>src/server.py</code></td>
+          </tr>
+          <tr>
+            <td>模型调用</td>
+            <td>统一封装 mock、qwen、openai-compatible provider。</td>
+            <td><code>src/providers/</code>, <code>configs/providers.example.json</code></td>
+          </tr>
+          <tr>
+            <td>Prompt 构建</td>
+            <td>读取风险规则与模板，生成给 VLM 的巡检提示词。</td>
+            <td><code>src/prompts/builder.py</code>, <code>configs/prompts/</code></td>
+          </tr>
+          <tr>
+            <td>数据与规则</td>
+            <td>管理样本 schema、风险规则、人工标注和自建图片数据。</td>
+            <td><code>src/datasets/</code>, <code>configs/risk_rules.json</code>, <code>datasets/custom/</code></td>
+          </tr>
+          <tr>
+            <td>评测分析</td>
+            <td>统计漏检、误检、等级错误、格式错误和失败案例。</td>
+            <td><code>src/evaluation/</code>, <code>outputs/evaluations/</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        数据流可以概括为：前端上传图片 -> FastAPI 保存临时文件 -> PromptBuilder 组合规则与模板 -> Provider 调用 VLM -> 后端解析并校验 JSON -> 保存 outputs -> 前端渲染热区和风险卡片。
+      </div>
+    </section>
+
+    <section id="summary">
+      <h2>六、总结与后续改进</h2>
+      <div class="grid-2">
+        <div>
+          <h3>当前成果</h3>
+          <ul class="list">
+            <li>完成了从图像输入到结构化巡检报告的最小闭环。</li>
+            <li>支持无 Key 的 mock 演示，也支持 qwen-vl-plus 真实视觉模型调用。</li>
+            <li>支持多视角输入，并能在结果中记录证据视角和主视角。</li>
+            <li>前端可以展示风险热区、原始 JSON 和模型原文，便于课堂讲解。</li>
+            <li>工程上已拆分规则、Prompt、Provider、数据集、输出和评测模块。</li>
+          </ul>
+        </div>
+        <div>
+          <h3>可补充材料</h3>
+          <ul class="list">
+            <li>批量运行页面截图：展示整套数据集自动巡检。</li>
+            <li>结果对比页面截图：展示不同 Prompt 或模型的准确率差异。</li>
+            <li>人工标注页面截图：说明 ground truth 如何进入评测流程。</li>
+            <li>至少 3 个失败案例截图：分别对应漏检、误检、等级错误或空间关系错误。</li>
+            <li>一张系统架构图：用于 PPT 中快速说明前后端和 VLM 的连接关系。</li>
+          </ul>
+        </div>
+      </div>
+      <p class="callout">
+        后续可以继续完善报告导出、更多真实样本、OpenAI/Gemini/custom_http provider，以及更细的失败案例归因。
+        但当前版本已经具备课程汇报需要的核心闭环：有数据、有规则、有模型调用、有结构化结果、有可视化和可分析案例。
+      </p>
+    </section>
+
+    <p class="footer">AI 视觉室内巡检项目汇报页 | 生成日期：2026-07-06</p>
+  </main>
+</body>
+</html>

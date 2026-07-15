@@ -1,3 +1,5 @@
-from .schema import SampleSchema, RiskItem, GroundTruth, MediaItem, ModelOutput
+"""结构化输出校验接口。"""
 
-__all__ = ["SampleSchema", "RiskItem", "GroundTruth", "MediaItem", "ModelOutput"]
+from .schema import validate_model_output
+
+__all__ = ["validate_model_output"]
